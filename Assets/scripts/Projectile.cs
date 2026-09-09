@@ -8,4 +8,13 @@ public class Projectile : MonoBehaviour
     {
         transform.position += transform.forward * speed * Time.deltaTime;
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            Debug.Log("Projectile touched enemy: " + other.name);
+            Destroy(gameObject);
+        }
+    }
 }
