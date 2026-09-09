@@ -4,6 +4,7 @@ public class PlayerShooting : MonoBehaviour
 {
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Transform firePoint;
+    [SerializeField] private SpellData currentSpell;
 
     private PlayerInputActions inputActions;
 
@@ -26,6 +27,8 @@ public class PlayerShooting : MonoBehaviour
 
     private void OnFire(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
-        Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+        GameObject projectileObject = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+        Projectile projectile = projectileObject.GetComponent<Projectile>();
+        projectile.Initialize(currentSpell);
     }
 }

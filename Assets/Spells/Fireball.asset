@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ac6df13f8373964c905d8807e1d8f48, type: 3}
   m_Name: Fireball
   m_EditorClassIdentifier: Assembly-CSharp::SpellData
-  spellName: New Spell
+  spellName: Fireball
   damage: 10
   projectileSpeed: 10
