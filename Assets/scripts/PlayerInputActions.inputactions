@@ -14,6 +14,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "fire",
+                    "type": "Button",
+                    "id": "59ae7ebc-1bb9-4717-aece-2c4838c4d39c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -71,6 +80,17 @@
                     "action": "move",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "3b703793-91aa-4d0e-9f35-ec124d0dcd8b",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
