@@ -20,8 +20,14 @@ public class Health : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            isDead = true;
-            Debug.Log(gameObject.name + " is dead.");
+            Die();
         }
+    }
+
+    private void Die()
+    {
+        isDead = true;
+        Debug.Log(gameObject.name + " is dead.");
+        Destroy(gameObject);
     }
 }
