@@ -3,6 +3,7 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     [SerializeField] private float speed = 10f;
+    [SerializeField] private int damage = 10;
 
     void Update()
     {
@@ -13,7 +14,12 @@ public class Projectile : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            Debug.Log("Projectile touched enemy: " + other.name);
+            Health enemyHealth = other.GetComponent<Health>();
+            if (enemyHealth != null)
+            {
+                enemyHealth.TakeDamage(damage);
+            }
+
             Destroy(gameObject);
         }
     }
