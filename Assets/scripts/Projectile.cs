@@ -7,6 +7,9 @@ public class Projectile : MonoBehaviour
     private bool isPiercing;
     private bool hasExplosion;
     private float explosionRadius;
+    private bool hasBounce;
+    private int maxBounces;
+    private int bounceCount = 0;
 
     public void Initialize(SpellData spellData)
     {
@@ -15,6 +18,8 @@ public class Projectile : MonoBehaviour
         isPiercing = spellData.isPiercing;
         hasExplosion = spellData.hasExplosion;
         explosionRadius = spellData.explosionRadius;
+        hasBounce = spellData.hasBounce;
+        maxBounces = spellData.maxBounces;
     }
 
     void Update()
@@ -24,6 +29,12 @@ public class Projectile : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        if (other.CompareTag("Wall"))
+        {
+            HandleWallHit(other);
+            return;
+        }
+
         if (other.CompareTag("Enemy"))
         {
             if (hasExplosion)
@@ -39,6 +50,23 @@ public class Projectile : MonoBehaviour
             {
                 Destroy(gameObject);
             }
+        }
+    }
+
+    private void HandleWallHit(Collider wall)
+    {
+        if (hasBounce && bounceCount < maxBounces)
+        {
+            Vector3 closestPoint = wall.ClosestPoint(transform.position);
+            Vector3 normal = (transform.position - closestPoint).normalized;
+            Vector3 reflectedDirection = Vector3.Reflect(transform.forward, normal);
+
+            transform.rotation = Quaternion.LookRotation(reflectedDirection);
+            bounceCount++;
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 
@@ -65,11 +93,11 @@ public class Projectile : MonoBehaviour
     }
 
     void OnDrawGizmosSelected()
+    {
+        if (hasExplosion)
         {
-            if (hasExplosion)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(transform.position, explosionRadius);
-            }
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, explosionRadius);
         }
+    }
 }

@@ -9,4 +9,6 @@ public class SpellData : ScriptableObject
     public bool isPiercing = false;
     public bool hasExplosion = false;
     public float explosionRadius = 3f;
+    public bool hasBounce = false;
+    public int maxBounces = 3;
 }
