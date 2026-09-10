@@ -7,4 +7,6 @@ public class SpellData : ScriptableObject
     public int damage = 10;
     public float projectileSpeed = 10f;
     public bool isPiercing = false;
+    public bool hasExplosion = false;
+    public float explosionRadius = 3f;
 }
