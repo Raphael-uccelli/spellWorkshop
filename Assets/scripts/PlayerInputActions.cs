@@ -109,6 +109,24 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SelectSpell1"",
+                    ""type"": ""Button"",
+                    ""id"": ""269df38f-cdb9-40f2-ae92-ca225876567e"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SelectSpell2"",
+                    ""type"": ""Button"",
+                    ""id"": ""42f1ccf6-1709-4ba5-a947-9e3acd18a949"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -177,6 +195,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""fire"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7dc43928-486b-4fc4-a438-078ac7d77350"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectSpell1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9eff0ea2-18fb-4890-ae54-ca4e869d855d"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectSpell2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -187,6 +227,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_player = asset.FindActionMap("player", throwIfNotFound: true);
         m_player_move = m_player.FindAction("move", throwIfNotFound: true);
         m_player_fire = m_player.FindAction("fire", throwIfNotFound: true);
+        m_player_SelectSpell1 = m_player.FindAction("SelectSpell1", throwIfNotFound: true);
+        m_player_SelectSpell2 = m_player.FindAction("SelectSpell2", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -269,6 +311,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_player_move;
     private readonly InputAction m_player_fire;
+    private readonly InputAction m_player_SelectSpell1;
+    private readonly InputAction m_player_SelectSpell2;
     /// <summary>
     /// Provides access to input actions defined in input action map "player".
     /// </summary>
@@ -288,6 +332,14 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "player/fire".
         /// </summary>
         public InputAction @fire => m_Wrapper.m_player_fire;
+        /// <summary>
+        /// Provides access to the underlying input action "player/SelectSpell1".
+        /// </summary>
+        public InputAction @SelectSpell1 => m_Wrapper.m_player_SelectSpell1;
+        /// <summary>
+        /// Provides access to the underlying input action "player/SelectSpell2".
+        /// </summary>
+        public InputAction @SelectSpell2 => m_Wrapper.m_player_SelectSpell2;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -320,6 +372,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @fire.started += instance.OnFire;
             @fire.performed += instance.OnFire;
             @fire.canceled += instance.OnFire;
+            @SelectSpell1.started += instance.OnSelectSpell1;
+            @SelectSpell1.performed += instance.OnSelectSpell1;
+            @SelectSpell1.canceled += instance.OnSelectSpell1;
+            @SelectSpell2.started += instance.OnSelectSpell2;
+            @SelectSpell2.performed += instance.OnSelectSpell2;
+            @SelectSpell2.canceled += instance.OnSelectSpell2;
         }
 
         /// <summary>
@@ -337,6 +395,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @fire.started -= instance.OnFire;
             @fire.performed -= instance.OnFire;
             @fire.canceled -= instance.OnFire;
+            @SelectSpell1.started -= instance.OnSelectSpell1;
+            @SelectSpell1.performed -= instance.OnSelectSpell1;
+            @SelectSpell1.canceled -= instance.OnSelectSpell1;
+            @SelectSpell2.started -= instance.OnSelectSpell2;
+            @SelectSpell2.performed -= instance.OnSelectSpell2;
+            @SelectSpell2.canceled -= instance.OnSelectSpell2;
         }
 
         /// <summary>
@@ -391,5 +455,19 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFire(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SelectSpell1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSelectSpell1(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SelectSpell2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSelectSpell2(InputAction.CallbackContext context);
     }
 }

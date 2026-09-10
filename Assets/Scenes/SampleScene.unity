@@ -736,7 +736,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShooting
   projectilePrefab: {fileID: 53141220025375511, guid: 50319c7b650034748a4b756414511b41, type: 3}
   firePoint: {fileID: 726724408}
-  currentSpell: {fileID: 11400000, guid: ad322515cf2d8334a89c64388b86f11f, type: 2}
+  spell1: {fileID: 11400000, guid: ad322515cf2d8334a89c64388b86f11f, type: 2}
+  spell2: {fileID: 11400000, guid: 869dce31278486d4da4194a9ac146897, type: 2}
 --- !u!1001 &2811447760933695451
 PrefabInstance:
   m_ObjectHideFlags: 0
