@@ -4,11 +4,13 @@ public class Projectile : MonoBehaviour
 {
     private float speed;
     private int damage;
+    private bool isPiercing;
 
     public void Initialize(SpellData spellData)
     {
         speed = spellData.projectileSpeed;
         damage = spellData.damage;
+        isPiercing = spellData.isPiercing;
     }
 
     void Update()
@@ -26,7 +28,10 @@ public class Projectile : MonoBehaviour
                 enemyHealth.TakeDamage(damage);
             }
 
-            Destroy(gameObject);
+            if (!isPiercing)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }
