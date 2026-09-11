@@ -1,10 +1,13 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Health : MonoBehaviour
 {
     [SerializeField] private int maxHealth = 100;
     private int currentHealth;
     private bool isDead = false;
+
+    public UnityEvent onDeath;
 
     void Awake()
     {
@@ -28,6 +31,7 @@ public class Health : MonoBehaviour
     {
         isDead = true;
         Debug.Log(gameObject.name + " is dead.");
+        onDeath.Invoke();
         Destroy(gameObject);
     }
 }
