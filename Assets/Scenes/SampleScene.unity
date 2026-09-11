@@ -906,7 +906,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 53141220025375511, guid: 50319c7b650034748a4b756414511b41, type: 3}
   firePoint: {fileID: 726724408}
   spell1: {fileID: 11400000, guid: ad322515cf2d8334a89c64388b86f11f, type: 2}
-  spell2: {fileID: 11400000, guid: 3602cd9579c37b14d880873f9c0043a4, type: 2}
+  spell2: {fileID: 11400000, guid: 6feee8b5973b44f489ed826bd2d7b4e8, type: 2}
 --- !u!1 &917893538
 GameObject:
   m_ObjectHideFlags: 0

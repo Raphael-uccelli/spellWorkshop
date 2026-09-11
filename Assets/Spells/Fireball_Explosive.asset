@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: Fireball_Explosive
   m_EditorClassIdentifier: Assembly-CSharp::SpellData
   spellName: New Spell
+  element: 1
   damage: 15
   projectileSpeed: 10
   isPiercing: 0
   hasExplosion: 1
   explosionRadius: 3
+  hasBounce: 0
+  maxBounces: 3

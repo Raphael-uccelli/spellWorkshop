@@ -13,6 +13,11 @@ MonoBehaviour:
   m_Name: PiercingBolt
   m_EditorClassIdentifier: Assembly-CSharp::SpellData
   spellName: New Spell
+  element: 4
   damage: 10
   projectileSpeed: 10
   isPiercing: 1
+  hasExplosion: 0
+  explosionRadius: 3
+  hasBounce: 0
+  maxBounces: 3

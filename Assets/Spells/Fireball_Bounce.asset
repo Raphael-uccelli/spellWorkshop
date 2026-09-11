@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Fireball_Bounce
   m_EditorClassIdentifier: Assembly-CSharp::SpellData
   spellName: New Spell
+  element: 1
   damage: 10
   projectileSpeed: 10
   isPiercing: 0

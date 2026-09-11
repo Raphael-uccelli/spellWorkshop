@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ac6df13f8373964c905d8807e1d8f48, type: 3}
   m_Name: Fireball_Ultimate
   m_EditorClassIdentifier: Assembly-CSharp::SpellData
-  spellName: New Spell
-  damage: 10
-  projectileSpeed: 10
+  spellName: Fireball_Ultimate
+  element: 1
+  damage: 15
+  projectileSpeed: 12
   isPiercing: 0
-  hasExplosion: 0
+  hasExplosion: 1
   explosionRadius: 3
-  hasBounce: 0
+  hasBounce: 1
   maxBounces: 3

@@ -13,5 +13,11 @@ MonoBehaviour:
   m_Name: RapidBolt
   m_EditorClassIdentifier: Assembly-CSharp::SpellData
   spellName: New Spell
+  element: 5
   damage: 5
   projectileSpeed: 20
+  isPiercing: 0
+  hasExplosion: 0
+  explosionRadius: 3
+  hasBounce: 0
+  maxBounces: 3
