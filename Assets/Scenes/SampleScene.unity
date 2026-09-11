@@ -174,8 +174,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6259988400978823143, guid: 021c5a70e80b66945b183e9684d1bc32, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5266254}
   m_SourcePrefab: {fileID: 100100000, guid: 021c5a70e80b66945b183e9684d1bc32, type: 3}
+--- !u!1 &5266253 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6259988400978823143, guid: 021c5a70e80b66945b183e9684d1bc32, type: 3}
+  m_PrefabInstance: {fileID: 5266252}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5266254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5266253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb94d152a2c76f44ab849d6405973af1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
+  moveSpeed: 3
 --- !u!1 &197229938
 GameObject:
   m_ObjectHideFlags: 0
@@ -777,7 +798,7 @@ GameObject:
   - component: {fileID: 837434869}
   m_Layer: 0
   m_Name: player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1298,8 +1319,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6259988400978823143, guid: 021c5a70e80b66945b183e9684d1bc32, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1846576295}
   m_SourcePrefab: {fileID: 100100000, guid: 021c5a70e80b66945b183e9684d1bc32, type: 3}
+--- !u!1 &1846576294 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6259988400978823143, guid: 021c5a70e80b66945b183e9684d1bc32, type: 3}
+  m_PrefabInstance: {fileID: 1846576293}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1846576295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1846576294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb94d152a2c76f44ab849d6405973af1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
+  moveSpeed: 3
 --- !u!1001 &2811447760933695451
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1355,8 +1397,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6259988400978823143, guid: 021c5a70e80b66945b183e9684d1bc32, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2811447760933695453}
   m_SourcePrefab: {fileID: 100100000, guid: 021c5a70e80b66945b183e9684d1bc32, type: 3}
+--- !u!1 &2811447760933695452 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6259988400978823143, guid: 021c5a70e80b66945b183e9684d1bc32, type: 3}
+  m_PrefabInstance: {fileID: 2811447760933695451}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2811447760933695453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2811447760933695452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb94d152a2c76f44ab849d6405973af1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
+  moveSpeed: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
