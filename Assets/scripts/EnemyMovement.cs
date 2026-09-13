@@ -18,7 +18,8 @@ public class EnemyMovement : MonoBehaviour
     {
         if (target == null) return;
 
-        Vector3 direction = (target.position - transform.position).normalized;
+        Vector3 targetPosition = new Vector3(target.position.x, transform.position.y, target.position.z);
+        Vector3 direction = (targetPosition - transform.position).normalized;
         transform.position += direction * moveSpeed * Time.deltaTime;
     }
 }

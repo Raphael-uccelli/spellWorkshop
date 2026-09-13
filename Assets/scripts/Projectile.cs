@@ -11,6 +11,10 @@ public class Projectile : MonoBehaviour
     private int maxBounces;
     private int bounceCount = 0;
 
+    private Rigidbody rb;
+
+    [SerializeField] private LayerMask wallLayer;
+
     public void Initialize(SpellData spellData)
     {
         speed = spellData.projectileSpeed;
@@ -22,19 +26,27 @@ public class Projectile : MonoBehaviour
         maxBounces = spellData.maxBounces;
     }
 
-    void Update()
+    void Awake()
     {
-        transform.position += transform.forward * speed * Time.deltaTime;
+        rb = GetComponent<Rigidbody>();
+    }
+
+    void FixedUpdate()
+    {
+        float moveDistance = speed * Time.fixedDeltaTime;
+        Vector3 direction = transform.forward;
+
+        if (Physics.Raycast(rb.position, direction, out RaycastHit hit, moveDistance, wallLayer))
+        {
+            HandleWallHit(hit);
+            return;
+        }
+
+        rb.MovePosition(rb.position + direction * moveDistance);
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Wall"))
-        {
-            HandleWallHit(other);
-            return;
-        }
-
         if (other.CompareTag("Enemy"))
         {
             if (hasExplosion)
@@ -53,14 +65,12 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    private void HandleWallHit(Collider wall)
+    private void HandleWallHit(RaycastHit hit)
     {
         if (hasBounce && bounceCount < maxBounces)
         {
-            Vector3 closestPoint = wall.ClosestPoint(transform.position);
-            Vector3 normal = (transform.position - closestPoint).normalized;
-            Vector3 reflectedDirection = Vector3.Reflect(transform.forward, normal);
-
+            Vector3 reflectedDirection = Vector3.Reflect(transform.forward, hit.normal);
+            transform.position = hit.point;
             transform.rotation = Quaternion.LookRotation(reflectedDirection);
             bounceCount++;
         }

@@ -126,7 +126,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6da34d9671511a4190f3371e3d826df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
-  speed: 10
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!54 &8872279968930855830
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -153,4 +155,4 @@ Rigidbody:
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 3
