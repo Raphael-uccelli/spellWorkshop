@@ -11,20 +11,17 @@ public class PlayerShooting : MonoBehaviour
     private SpellData currentSpell;
     private PlayerInputActions inputActions;
 
-    void Awake()
+    private void Awake()
     {
         EnsureInputActions();
-        currentSpell = spell1;
+        currentSpell = spell1 != null ? spell1 : spell2;
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         EnsureInputActions();
         if (inputActions == null)
-        {
-            Debug.LogError("PlayerShooting: impossible d'initialiser les InputActions.", this);
             return;
-        }
 
         inputActions.player.Enable();
         inputActions.player.fire.performed += OnFire;
@@ -32,12 +29,10 @@ public class PlayerShooting : MonoBehaviour
         inputActions.player.SelectSpell2.performed += OnSelectSpell2;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         if (inputActions == null)
-        {
             return;
-        }
 
         inputActions.player.fire.performed -= OnFire;
         inputActions.player.SelectSpell1.performed -= OnSelectSpell1;
@@ -45,15 +40,10 @@ public class PlayerShooting : MonoBehaviour
         inputActions.player.Disable();
     }
 
-    private void SelectSpell(SpellData spell)
+    private void OnDestroy()
     {
-        if (spell == null)
-        {
-            return;
-        }
-
-        currentSpell = spell;
-        Debug.Log("Selected spell: " + spell.spellName);
+        inputActions?.Dispose();
+        inputActions = null;
     }
 
     private void OnSelectSpell1(InputAction.CallbackContext context)
@@ -66,19 +56,47 @@ public class PlayerShooting : MonoBehaviour
         SelectSpell(spell2);
     }
 
+    private void SelectSpell(SpellData spell)
+    {
+        if (spell == null)
+        {
+            Debug.LogWarning("PlayerShooting: le sort sélectionné n'est pas assigné.", this);
+            return;
+        }
+
+        currentSpell = spell;
+        Debug.Log("Selected spell: " + spell.spellName);
+    }
+
     private void OnFire(InputAction.CallbackContext context)
     {
-        if (projectilePrefab == null || firePoint == null || currentSpell == null)
+        if (projectilePrefab == null)
         {
-            Debug.LogWarning("PlayerShooting: tir ignoré, référence manquante (projectile/firePoint/spell).", this);
+            Debug.LogError("PlayerShooting: projectilePrefab n'est pas assigné.", this);
+            return;
+        }
+
+        if (firePoint == null)
+        {
+            Debug.LogError("PlayerShooting: FirePoint n'est pas assigné.", this);
+            return;
+        }
+
+        if (currentSpell == null)
+        {
+            Debug.LogWarning("PlayerShooting: aucun sort n'est assigné.", this);
             return;
         }
 
         GameObject projectileObject = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+        if (projectileObject == null)
+            return;
+
         Projectile projectile = projectileObject.GetComponent<Projectile>();
         if (projectile == null)
         {
-            Debug.LogError("PlayerShooting: le projectile instancié ne contient pas de composant Projectile.", projectileObject);
+            Debug.LogError("PlayerShooting: le prefab projectile ne contient pas le composant Projectile.", projectileObject);
+            Destroy(projectileObject);
             return;
         }
 
@@ -88,8 +106,6 @@ public class PlayerShooting : MonoBehaviour
     private void EnsureInputActions()
     {
         if (inputActions == null)
-        {
             inputActions = new PlayerInputActions();
-        }
     }
 }
