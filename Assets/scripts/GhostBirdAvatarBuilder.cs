@@ -11,239 +11,92 @@ public class GhostBirdAvatarBuilder : MonoBehaviour
     private const string ModelRootName = "GhostBirdModel";
 
 #if UNITY_EDITOR
-    private const string MaterialFolderPath = "Assets/Materials/GhostBird";
+    private const string MaterialFolder = "Assets/Materials/GhostBird";
 #endif
 
     [SerializeField] private bool autoBuildOnStart = true;
     [SerializeField] private Transform modelRoot;
 
-    [Header("Palette")]
-    [SerializeField] private Color bodyColor = new Color(0.92f, 0.93f, 0.97f, 1f);
-    [SerializeField] private Color lightColor = new Color(0.98f, 0.98f, 1f, 1f);
-    [SerializeField] private Color darkColor = new Color(0.04f, 0.04f, 0.07f, 1f);
-    [SerializeField] private Color shadowColor = new Color(0.22f, 0.21f, 0.28f, 1f);
+    [Header("Concept palette")]
+    [SerializeField] private Color bodyColor = new Color(0.91f, 0.90f, 0.92f, 1f);
+    [SerializeField] private Color lightColor = new Color(0.98f, 0.97f, 0.98f, 1f);
+    [SerializeField] private Color darkColor = new Color(0.043f, 0.043f, 0.059f, 1f);
+    [SerializeField] private Color shadowColor = new Color(0.18f, 0.16f, 0.23f, 1f);
     [SerializeField] private Color eyeColor = Color.white;
 
-    [Header("Persistent Materials (URP)")]
-    [SerializeField] private Material bodyMaterial;
-    [SerializeField] private Material lightMaterial;
-    [SerializeField] private Material darkMaterial;
-    [SerializeField] private Material shadowMaterial;
-    [SerializeField] private Material eyeMaterial;
-
-    private void Reset()
-    {
-        BuildAvatar();
-    }
+    private void Reset() => BuildAvatar();
 
     private void Awake()
     {
         if (autoBuildOnStart)
-        {
             BuildAvatar();
-        }
     }
 
     [ContextMenu("Build Avatar")]
     public void BuildAvatar()
     {
-        RemoveLegacyModels();
         EnsureModelRoot();
         if (modelRoot == null)
-        {
             return;
-        }
 
-        var resolvedBodyMaterial = ResolveMaterial("GhostBird_Body", bodyColor, ref bodyMaterial);
-        var resolvedLightMaterial = ResolveMaterial("GhostBird_Light", lightColor, ref lightMaterial);
-        var resolvedDarkMaterial = ResolveMaterial("GhostBird_Dark", darkColor, ref darkMaterial);
-        var resolvedShadowMaterial = ResolveMaterial("GhostBird_Shadow", shadowColor, ref shadowMaterial);
-        var resolvedEyeMaterial = ResolveMaterial("GhostBird_Eye", eyeColor, ref eyeMaterial);
+        var body = ResolveMaterial("GhostBird_Body", bodyColor);
+        var light = ResolveMaterial("GhostBird_Light", lightColor);
+        var dark = ResolveMaterial("GhostBird_Dark", darkColor);
+        var shadow = ResolveMaterial("GhostBird_Shadow", shadowColor);
+        var eye = ResolveMaterial("GhostBird_Eye", eyeColor);
 
-        if (resolvedBodyMaterial == null ||
-            resolvedLightMaterial == null ||
-            resolvedDarkMaterial == null ||
-            resolvedShadowMaterial == null ||
-            resolvedEyeMaterial == null)
-        {
-            Debug.LogError("GhostBirdAvatarBuilder: génération annulée car aucun shader URP compatible n'a été trouvé.", this);
+        if (body == null || light == null || dark == null || shadow == null || eye == null)
             return;
-        }
 
         ClearModelRoot();
-        BuildStylizedGhostBird(
-            resolvedBodyMaterial,
-            resolvedLightMaterial,
-            resolvedDarkMaterial,
-            resolvedShadowMaterial,
-            resolvedEyeMaterial);
 
-#if UNITY_EDITOR
-        if (!Application.isPlaying)
-        {
-            EditorUtility.SetDirty(this);
-            AssetDatabase.SaveAssets();
-        }
-#endif
+        // The character faces +Z, which is also the direction used by PlayerAim/FirePoint.
+        CreateRingBody("Body", light, new Vector3(0f, -0.02f, 0f));
+        CreateEllipsoid("BodyShade", shadow, new Vector3(0.31f, 0.30f, 0.34f), new Vector3(0f, 0.02f, 0.24f));
+        CreateEllipsoid("Head", dark, new Vector3(0.38f, 0.39f, 0.33f), new Vector3(0f, 0.73f, 0.02f));
+        CreateCone("HeadPoint", dark, new Vector3(0f, 1.00f, -0.01f), new Vector3(0f, 0.27f, 0.18f));
+        CreateBeak("Beak", dark, new Vector3(0f, 0.73f, 0.27f));
 
-        ValidateForwardOrientation();
+        CreateEllipsoid("LeftEye", eye, new Vector3(0.075f, 0.13f, 0.055f), new Vector3(-0.145f, 0.80f, 0.305f));
+        CreateEllipsoid("RightEye", eye, new Vector3(0.075f, 0.13f, 0.055f), new Vector3(0.145f, 0.80f, 0.305f));
 
-        var turnAnimation = GetComponent<GhostBirdTurnAnimation>();
-        if (turnAnimation == null)
-        {
-            turnAnimation = gameObject.AddComponent<GhostBirdTurnAnimation>();
-        }
+        // Separate rounded side tufts and five rear/bottom points make the silhouette readable from all angles.
+        CreateCone("LeftSideTuft", light, new Vector3(-0.34f, 0.18f, 0f), new Vector3(-0.28f, 0.38f, 0.03f));
+        CreateCone("RightSideTuft", light, new Vector3(0.34f, 0.18f, 0f), new Vector3(0.28f, 0.38f, 0.03f));
+        CreateCone("FrontTendril", light, new Vector3(0f, -0.82f, 0.22f), new Vector3(0f, 0.40f, 0.02f));
+        CreateCone("LeftTendril", light, new Vector3(-0.24f, -0.75f, 0.10f), new Vector3(0f, 0.35f, 0.02f));
+        CreateCone("RightTendril", light, new Vector3(0.24f, -0.75f, 0.10f), new Vector3(0f, 0.35f, 0.02f));
+        CreateCone("BackTendril", body, new Vector3(0f, -0.74f, -0.20f), new Vector3(0f, 0.31f, 0.02f));
 
-        turnAnimation.AssignModelRoot(modelRoot);
-    }
-
-    private void BuildStylizedGhostBird(
-        Material bodyMat,
-        Material lightMat,
-        Material darkMat,
-        Material shadowMat,
-        Material eyeMat)
-    {
-        var bodyOutline = new[]
-        {
-            new Vector2(-0.44f, 0.40f),
-            new Vector2(-0.32f, 0.62f),
-            new Vector2(0f, 0.70f),
-            new Vector2(0.34f, 0.60f),
-            new Vector2(0.46f, 0.38f),
-            new Vector2(0.47f, 0.04f),
-            new Vector2(0.38f, -0.26f),
-            new Vector2(0.24f, -0.52f),
-            new Vector2(0.08f, -0.80f),
-            new Vector2(-0.06f, -0.57f),
-            new Vector2(-0.20f, -0.84f),
-            new Vector2(-0.34f, -0.48f),
-            new Vector2(-0.44f, -0.18f),
-        };
-
-        var bodyHighlight = new[]
-        {
-            new Vector2(-0.28f, 0.39f),
-            new Vector2(-0.20f, 0.52f),
-            new Vector2(0f, 0.57f),
-            new Vector2(0.22f, 0.50f),
-            new Vector2(0.30f, 0.36f),
-            new Vector2(0.29f, 0.05f),
-            new Vector2(0.23f, -0.16f),
-            new Vector2(0.12f, -0.38f),
-            new Vector2(0f, -0.56f),
-            new Vector2(-0.11f, -0.35f),
-            new Vector2(-0.22f, -0.56f),
-            new Vector2(-0.30f, -0.22f),
-        };
-
-        CreateMeshPart("Body", CreateExtrudedPolygonMesh("GhostBirdBody", bodyOutline, 0.24f), bodyMat,
-            new Vector3(0f, -0.12f, -0.02f));
-
-        CreateMeshPart("BodyHighlight", CreateExtrudedPolygonMesh("GhostBirdBodyHighlight", bodyHighlight, 0.12f), lightMat,
-            new Vector3(0f, -0.10f, 0.10f));
-
-        CreateMeshPart("BodyShadow", CreateExtrudedPolygonMesh("GhostBirdBodyShadow", bodyHighlight, 0.11f), shadowMat,
-            new Vector3(-0.02f, -0.28f, -0.08f), Quaternion.Euler(0f, 10f, 0f), new Vector3(1.06f, 0.86f, 1f));
-
-        CreateMeshPart("Head", CreateExtrudedEllipseMesh("GhostBirdHead", 0.34f, 0.36f, 0.30f, 24), darkMat,
-            new Vector3(0f, 0.54f, 0.02f));
-
-        var headTop = new[]
-        {
-            new Vector2(-0.12f, 0.10f),
-            new Vector2(0f, 0.24f),
-            new Vector2(0.12f, 0.10f),
-            new Vector2(0f, -0.02f),
-        };
-
-        CreateMeshPart("HeadTop", CreateExtrudedPolygonMesh("GhostBirdHeadTop", headTop, 0.16f), darkMat,
-            new Vector3(0f, 0.86f, 0.01f));
-
-        CreateMeshPart("Beak", CreateBeakMesh("GhostBirdBeak", 0.76f, 0.13f, 0.10f), darkMat,
-            new Vector3(0f, 0.46f, 0.22f));
-
-        CreateMeshPart("LeftEye", CreateExtrudedEllipseMesh("GhostBirdLeftEye", 0.06f, 0.11f, 0.05f, 16), eyeMat,
-            new Vector3(-0.11f, 0.56f, 0.30f), Quaternion.Euler(4f, -5f, 4f));
-
-        CreateMeshPart("RightEye", CreateExtrudedEllipseMesh("GhostBirdRightEye", 0.06f, 0.11f, 0.05f, 16), eyeMat,
-            new Vector3(0.11f, 0.56f, 0.30f), Quaternion.Euler(4f, 5f, -4f));
-
-        CreateMeshPart("TendrilLeft", CreateTendrilMesh("GhostBirdTendrilLeft", 0.27f, 0.16f, 0.11f), bodyMat,
-            new Vector3(-0.26f, -0.90f, 0.03f), Quaternion.Euler(8f, -10f, 22f));
-
-        CreateMeshPart("TendrilMid", CreateTendrilMesh("GhostBirdTendrilMid", 0.34f, 0.18f, 0.12f), bodyMat,
-            new Vector3(0f, -0.95f, 0.06f), Quaternion.Euler(0f, 4f, -2f));
-
-        CreateMeshPart("TendrilRight", CreateTendrilMesh("GhostBirdTendrilRight", 0.25f, 0.14f, 0.11f), bodyMat,
-            new Vector3(0.24f, -0.90f, -0.02f), Quaternion.Euler(-6f, 12f, -20f));
-    }
-
-    private void RemoveLegacyModels()
-    {
-        for (int i = transform.childCount - 1; i >= 0; i--)
-        {
-            var child = transform.GetChild(i);
-            if (child == modelRoot)
-            {
-                continue;
-            }
-
-            if (child.name == "GhostModel")
-            {
-                DestroyObject(child.gameObject);
-            }
-        }
+        var animation = GetComponent<GhostBirdTurnAnimation>();
+        if (animation == null)
+            animation = gameObject.AddComponent<GhostBirdTurnAnimation>();
+        animation.AssignModelRoot(modelRoot);
     }
 
     private void EnsureModelRoot()
     {
-        if (modelRoot != null && modelRoot.parent != transform)
-        {
-            modelRoot = null;
-        }
-
-        Transform firstMatchingRoot = null;
+        var roots = new List<Transform>();
         for (int i = 0; i < transform.childCount; i++)
         {
             var child = transform.GetChild(i);
-            if (child.name != ModelRootName)
-            {
-                continue;
-            }
-
-            if (firstMatchingRoot == null)
-            {
-                firstMatchingRoot = child;
-                continue;
-            }
-
-            DestroyObject(child.gameObject);
+            if (child.name == "GhostModel")
+                DestroyObject(child.gameObject);
+            else if (child.name == ModelRootName)
+                roots.Add(child);
         }
 
-        modelRoot = modelRoot != null ? modelRoot : firstMatchingRoot;
+        if (modelRoot == null || modelRoot.parent != transform)
+            modelRoot = roots.Count > 0 ? roots[0] : null;
 
-        if (modelRoot != null)
-        {
-            return;
-        }
+        for (int i = 1; i < roots.Count; i++)
+            DestroyObject(roots[i].gameObject);
 
-        var root = new GameObject(ModelRootName);
-        modelRoot = root.transform;
-        modelRoot.SetParent(transform, false);
-    }
-
-    private void ClearModelRoot()
-    {
         if (modelRoot == null)
         {
-            Debug.LogError("GhostBirdAvatarBuilder: modelRoot est introuvable, impossible de reconstruire le modèle.", this);
-            return;
-        }
-
-        for (int i = modelRoot.childCount - 1; i >= 0; i--)
-        {
-            DestroyObject(modelRoot.GetChild(i).gameObject);
+            var root = new GameObject(ModelRootName);
+            modelRoot = root.transform;
+            modelRoot.SetParent(transform, false);
         }
 
         modelRoot.localPosition = Vector3.zero;
@@ -251,102 +104,142 @@ public class GhostBirdAvatarBuilder : MonoBehaviour
         modelRoot.localScale = Vector3.one;
     }
 
-    private void ValidateForwardOrientation()
+    private void ClearModelRoot()
     {
-        if (modelRoot == null)
-        {
-            return;
-        }
-
-        var firePoint = transform.Find("FirePoint");
-        if (firePoint == null)
-        {
-            return;
-        }
-
-        var localFirePoint = transform.InverseTransformPoint(firePoint.position);
-        if (localFirePoint.z < 0.02f)
-        {
-            Debug.LogWarning("GhostBirdAvatarBuilder: FirePoint semble derrière le bec. Placez-le devant le joueur sur +Z.", firePoint);
-        }
+        for (int i = modelRoot.childCount - 1; i >= 0; i--)
+            DestroyObject(modelRoot.GetChild(i).gameObject);
     }
 
-    private GameObject CreateMeshPart(
-        string name,
-        Mesh mesh,
-        Material material,
-        Vector3 localPosition,
-        Quaternion localRotation = default,
-        Vector3 localScale = default)
+    private void CreateRingBody(string name, Material material, Vector3 position)
+    {
+        float[] heights = { -0.84f, -0.68f, -0.40f, -0.08f, 0.22f, 0.48f };
+        float[] radiiX = { 0.05f, 0.22f, 0.39f, 0.46f, 0.40f, 0.27f };
+        float[] radiiZ = { 0.05f, 0.18f, 0.30f, 0.35f, 0.31f, 0.22f };
+        const int segments = 16;
+
+        var vertices = new Vector3[heights.Length * segments];
+        var triangles = new List<int>();
+        for (int y = 0; y < heights.Length; y++)
+        {
+            for (int s = 0; s < segments; s++)
+            {
+                float angle = s * Mathf.PI * 2f / segments;
+                vertices[y * segments + s] = new Vector3(
+                    Mathf.Cos(angle) * radiiX[y],
+                    heights[y],
+                    Mathf.Sin(angle) * radiiZ[y]);
+            }
+        }
+
+        for (int y = 0; y < heights.Length - 1; y++)
+        {
+            for (int s = 0; s < segments; s++)
+            {
+                int next = (s + 1) % segments;
+                int a = y * segments + s;
+                int b = y * segments + next;
+                int c = (y + 1) * segments + next;
+                int d = (y + 1) * segments + s;
+                triangles.Add(a); triangles.Add(d); triangles.Add(c);
+                triangles.Add(a); triangles.Add(c); triangles.Add(b);
+            }
+        }
+
+        CreateMeshPart(name, BuildMesh(name, vertices, triangles.ToArray()), material, position);
+    }
+
+    private void CreateEllipsoid(string name, Material material, Vector3 scale, Vector3 position)
+    {
+        const int rings = 10;
+        const int segments = 20;
+        var vertices = new Vector3[(rings + 1) * segments];
+        var triangles = new List<int>();
+
+        for (int r = 0; r <= rings; r++)
+        {
+            float phi = Mathf.PI * r / rings;
+            for (int s = 0; s < segments; s++)
+            {
+                float theta = Mathf.PI * 2f * s / segments;
+                vertices[r * segments + s] = new Vector3(
+                    Mathf.Sin(phi) * Mathf.Cos(theta) * scale.x,
+                    Mathf.Cos(phi) * scale.y,
+                    Mathf.Sin(phi) * Mathf.Sin(theta) * scale.z);
+            }
+        }
+
+        for (int r = 0; r < rings; r++)
+        {
+            for (int s = 0; s < segments; s++)
+            {
+                int next = (s + 1) % segments;
+                int a = r * segments + s;
+                int b = r * segments + next;
+                int c = (r + 1) * segments + next;
+                int d = (r + 1) * segments + s;
+                triangles.Add(a); triangles.Add(c); triangles.Add(d);
+                triangles.Add(a); triangles.Add(b); triangles.Add(c);
+            }
+        }
+
+        CreateMeshPart(name, BuildMesh(name, vertices, triangles.ToArray()), material, position);
+    }
+
+    private void CreateCone(string name, Material material, Vector3 start, Vector3 direction)
+    {
+        float length = direction.magnitude;
+        if (length < 0.01f)
+            return;
+
+        const int segments = 8;
+        float radius = Mathf.Clamp(length * 0.42f, 0.035f, 0.18f);
+        var vertices = new Vector3[segments + 1];
+        var triangles = new int[segments * 6];
+        for (int i = 0; i < segments; i++)
+        {
+            float a = i * Mathf.PI * 2f / segments;
+            vertices[i] = new Vector3(Mathf.Cos(a) * radius, 0f, Mathf.Sin(a) * radius);
+        }
+        vertices[segments] = Vector3.up * length;
+        for (int i = 0; i < segments; i++)
+        {
+            int n = (i + 1) % segments;
+            int t = i * 6;
+            triangles[t] = i; triangles[t + 1] = n; triangles[t + 2] = segments;
+            triangles[t + 3] = n; triangles[t + 4] = i; triangles[t + 5] = 0;
+        }
+
+        var go = CreateMeshPart(name, BuildMesh(name, vertices, triangles), material, start);
+        go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, direction.normalized);
+    }
+
+    private void CreateBeak(string name, Material material, Vector3 position)
+    {
+        var vertices = new[]
+        {
+            new Vector3(-0.16f, 0.10f, 0f), new Vector3(0.16f, 0.10f, 0f),
+            new Vector3(0f, -0.10f, 0f), new Vector3(-0.035f, 0.015f, 0.86f),
+            new Vector3(0.035f, 0.015f, 0.86f), new Vector3(0f, -0.025f, 0.86f)
+        };
+        var triangles = new[] { 0, 1, 2, 3, 5, 4, 0, 3, 4, 0, 4, 1, 1, 4, 5, 1, 5, 2, 2, 5, 3, 2, 3, 0 };
+        CreateMeshPart(name, BuildMesh(name, vertices, triangles), material, position);
+    }
+
+    private GameObject CreateMeshPart(string name, Mesh mesh, Material material, Vector3 position)
     {
         var go = new GameObject(name);
         go.transform.SetParent(modelRoot, false);
-        go.transform.localPosition = localPosition;
-        go.transform.localRotation = localRotation == default ? Quaternion.identity : localRotation;
-        go.transform.localScale = localScale == default ? Vector3.one : localScale;
-
-        var meshFilter = go.AddComponent<MeshFilter>();
-        meshFilter.sharedMesh = mesh;
-
-        var meshRenderer = go.AddComponent<MeshRenderer>();
-        meshRenderer.sharedMaterial = material;
-
+        go.transform.localPosition = position;
+        var filter = go.AddComponent<MeshFilter>();
+        filter.sharedMesh = mesh;
+        var renderer = go.AddComponent<MeshRenderer>();
+        renderer.sharedMaterial = material;
         return go;
     }
 
-    private static Mesh CreateExtrudedEllipseMesh(string meshName, float radiusX, float radiusY, float depth, int segments)
+    private static Mesh BuildMesh(string name, Vector3[] vertices, int[] triangles)
     {
-        var points = new List<Vector2>(segments);
-        for (int i = 0; i < segments; i++)
-        {
-            float angle = (Mathf.PI * 2f * i) / segments;
-            points.Add(new Vector2(Mathf.Cos(angle) * radiusX, Mathf.Sin(angle) * radiusY));
-        }
-
-        return CreateExtrudedPolygonMesh(meshName, points.ToArray(), depth);
-    }
-
-    private static Mesh CreateTendrilMesh(string meshName, float length, float width, float depth)
-    {
-        var points = new[]
-        {
-            new Vector2(0f, -length),
-            new Vector2(-width * 0.5f, 0f),
-            new Vector2(width * 0.5f, 0f),
-        };
-
-        return CreateExtrudedPolygonMesh(meshName, points, depth);
-    }
-
-    private static Mesh CreateBeakMesh(string meshName, float length, float width, float height)
-    {
-        var mesh = new Mesh { name = meshName };
-
-        float halfWidth = width * 0.5f;
-        float halfHeight = height * 0.5f;
-
-        var vertices = new[]
-        {
-            new Vector3(0f, halfHeight, 0f),
-            new Vector3(-halfWidth, -halfHeight, 0f),
-            new Vector3(halfWidth, -halfHeight, 0f),
-            new Vector3(0f, halfHeight, length),
-            new Vector3(-halfWidth * 0.15f, -halfHeight * 0.4f, length),
-            new Vector3(halfWidth * 0.15f, -halfHeight * 0.4f, length),
-        };
-
-        var triangles = new[]
-        {
-            0, 1, 2,
-            3, 5, 4,
-            0, 2, 5,
-            0, 5, 3,
-            0, 3, 4,
-            0, 4, 1,
-            1, 4, 5,
-            1, 5, 2,
-        };
-
+        var mesh = new Mesh { name = name + "Mesh" };
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
@@ -354,186 +247,57 @@ public class GhostBirdAvatarBuilder : MonoBehaviour
         return mesh;
     }
 
-    private static Mesh CreateExtrudedPolygonMesh(string meshName, Vector2[] points, float depth)
+    private Material ResolveMaterial(string name, Color color)
     {
-        var mesh = new Mesh { name = meshName };
-        if (points == null || points.Length < 3)
-        {
-            return mesh;
-        }
-
-        int count = points.Length;
-        float frontZ = depth * 0.5f;
-        float backZ = -frontZ;
-
-        var vertices = new Vector3[count * 2];
-        for (int i = 0; i < count; i++)
-        {
-            vertices[i] = new Vector3(points[i].x, points[i].y, frontZ);
-            vertices[i + count] = new Vector3(points[i].x, points[i].y, backZ);
-        }
-
-        var triangles = new List<int>((count - 2) * 6 + count * 6);
-
-        for (int i = 1; i < count - 1; i++)
-        {
-            triangles.Add(0);
-            triangles.Add(i);
-            triangles.Add(i + 1);
-        }
-
-        for (int i = 1; i < count - 1; i++)
-        {
-            triangles.Add(count);
-            triangles.Add(count + i + 1);
-            triangles.Add(count + i);
-        }
-
-        for (int i = 0; i < count; i++)
-        {
-            int next = (i + 1) % count;
-
-            int frontA = i;
-            int frontB = next;
-            int backA = i + count;
-            int backB = next + count;
-
-            triangles.Add(frontA);
-            triangles.Add(frontB);
-            triangles.Add(backB);
-
-            triangles.Add(frontA);
-            triangles.Add(backB);
-            triangles.Add(backA);
-        }
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles.ToArray();
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
-        return mesh;
-    }
-
-    private Material ResolveMaterial(string materialName, Color color, ref Material materialSlot)
-    {
-        var shader = GetCompatibleShader();
+        var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Universal Render Pipeline/Lit");
         if (shader == null)
         {
-            Debug.LogError("GhostBirdAvatarBuilder: shader URP introuvable. Vérifiez Universal Render Pipeline.", this);
+            Debug.LogError("GhostBirdAvatarBuilder: shader URP introuvable.", this);
             return null;
         }
 
 #if UNITY_EDITOR
         if (!Application.isPlaying)
         {
-            materialSlot = GetOrCreateMaterialAsset(materialName, shader, color);
-            return materialSlot;
+            EnsureMaterialFolder();
+            string path = $"{MaterialFolder}/{name}.mat";
+            var asset = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (asset == null)
+            {
+                asset = new Material(shader);
+                AssetDatabase.CreateAsset(asset, path);
+            }
+            ApplyColor(asset, color);
+            EditorUtility.SetDirty(asset);
+            return asset;
         }
 #endif
 
-        if (materialSlot == null)
-        {
-            materialSlot = new Material(shader);
-        }
-        else if (materialSlot.shader != shader)
-        {
-            materialSlot.shader = shader;
-        }
-
-        ApplyMaterialColor(materialSlot, color);
-        return materialSlot;
+        var runtimeMaterial = new Material(shader);
+        ApplyColor(runtimeMaterial, color);
+        return runtimeMaterial;
     }
 
-    private static Shader GetCompatibleShader()
+    private static void ApplyColor(Material material, Color color)
     {
-        var shader = Shader.Find("Universal Render Pipeline/Unlit");
-        if (shader != null)
-        {
-            return shader;
-        }
-
-        return Shader.Find("Universal Render Pipeline/Lit");
-    }
-
-    private static void ApplyMaterialColor(Material material, Color color)
-    {
-        if (material == null)
-        {
-            return;
-        }
-
-        if (material.HasProperty("_BaseColor"))
-        {
-            material.SetColor("_BaseColor", color);
-        }
-
-        if (material.HasProperty("_Color"))
-        {
-            material.SetColor("_Color", color);
-        }
-
-        if (material.HasProperty("_Smoothness"))
-        {
-            material.SetFloat("_Smoothness", 0f);
-        }
-
-        if (material.HasProperty("_Surface"))
-        {
-            material.SetFloat("_Surface", 0f);
-        }
+        if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
+        if (material.HasProperty("_Color")) material.SetColor("_Color", color);
     }
 
 #if UNITY_EDITOR
-    private static Material GetOrCreateMaterialAsset(string materialName, Shader shader, Color color)
-    {
-        EnsureMaterialFolderExists();
-        var assetPath = $"{MaterialFolderPath}/{materialName}.mat";
-
-        var materialAsset = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
-        if (materialAsset == null)
-        {
-            materialAsset = new Material(shader);
-            AssetDatabase.CreateAsset(materialAsset, assetPath);
-        }
-
-        if (materialAsset.shader != shader)
-        {
-            materialAsset.shader = shader;
-        }
-
-        ApplyMaterialColor(materialAsset, color);
-        EditorUtility.SetDirty(materialAsset);
-        return materialAsset;
-    }
-
-    private static void EnsureMaterialFolderExists()
+    private static void EnsureMaterialFolder()
     {
         if (!AssetDatabase.IsValidFolder("Assets/Materials"))
-        {
             AssetDatabase.CreateFolder("Assets", "Materials");
-        }
-
-        if (!AssetDatabase.IsValidFolder(MaterialFolderPath))
-        {
+        if (!AssetDatabase.IsValidFolder(MaterialFolder))
             AssetDatabase.CreateFolder("Assets/Materials", "GhostBird");
-        }
     }
 #endif
 
     private static void DestroyObject(Object target)
     {
-        if (target == null)
-        {
-            return;
-        }
-
-        if (Application.isPlaying)
-        {
-            Destroy(target);
-        }
-        else
-        {
-            DestroyImmediate(target);
-        }
+        if (target == null) return;
+        if (Application.isPlaying) Destroy(target);
+        else DestroyImmediate(target);
     }
 }
