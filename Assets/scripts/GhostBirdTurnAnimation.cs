@@ -24,7 +24,7 @@ public class GhostBirdTurnAnimation : MonoBehaviour
 
     public void AssignModelRoot(Transform root)
     {
-        modelRoot = root;
+        modelRoot = root != null && root.parent == transform ? root : null;
         CachePose();
         warnedMissingRoot = false;
     }
@@ -46,6 +46,10 @@ public class GhostBirdTurnAnimation : MonoBehaviour
     private bool TryBindModelRoot(bool logWarning)
     {
         if (modelRoot == null)
+        {
+            modelRoot = transform.Find("GhostBirdModel");
+        }
+        else if (modelRoot.parent != transform || modelRoot.name != "GhostBirdModel")
         {
             modelRoot = transform.Find("GhostBirdModel");
         }
