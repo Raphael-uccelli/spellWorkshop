@@ -2,11 +2,12 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 5f;
+    [SerializeField] private float speed = 5f;
 
     private PlayerInputActions inputActions;
     private Rigidbody rb;
     private Vector2 input;
+    private bool warnedMissingRigidbody;
 
     private void Awake()
     {
@@ -16,39 +17,34 @@ public class PlayerMovement : MonoBehaviour
     private void OnEnable()
     {
         EnsureInitialized();
-        if (inputActions == null)
-        {
-            Debug.LogError("PlayerMovement: impossible d'initialiser les InputActions.", this);
-            return;
-        }
-
-        inputActions.player.Enable();
+        inputActions?.player.Enable();
     }
 
     private void OnDisable()
     {
-        if (inputActions != null)
-        {
-            inputActions.player.Disable();
-        }
+        inputActions?.player.Disable();
+        input = Vector2.zero;
+    }
+
+    private void OnDestroy()
+    {
+        inputActions?.Dispose();
+        inputActions = null;
     }
 
     private void Update()
     {
         if (inputActions == null)
-        {
-            return;
-        }
+            EnsureInitialized();
 
-        input = inputActions.player.move.ReadValue<Vector2>();
+        if (inputActions != null)
+            input = inputActions.player.move.ReadValue<Vector2>();
     }
 
     private void FixedUpdate()
     {
         if (rb == null)
-        {
             return;
-        }
 
         Vector3 movement = new Vector3(input.x, 0f, input.y);
         rb.MovePosition(rb.position + movement * speed * Time.fixedDeltaTime);
@@ -57,17 +53,15 @@ public class PlayerMovement : MonoBehaviour
     private void EnsureInitialized()
     {
         if (inputActions == null)
-        {
             inputActions = new PlayerInputActions();
-        }
 
         if (rb == null)
-        {
             rb = GetComponent<Rigidbody>();
-            if (rb == null)
-            {
-                Debug.LogError("PlayerMovement: Rigidbody manquant sur l'objet player.", this);
-            }
+
+        if (rb == null && !warnedMissingRigidbody)
+        {
+            Debug.LogError("PlayerMovement: Rigidbody manquant sur l'objet player.", this);
+            warnedMissingRigidbody = true;
         }
     }
 }
